@@ -2,7 +2,7 @@
 declare(strict_types=1);
 
 /**
- * Сидер демо-данных.
+ * Сидер: создаёт таблицы (sql/schema_for_hosting.sql) при необходимости и заливает демо-данные.
  * Браузер: http://localhost:8080/seed.php
  * CLI:     php seed.php [--reset-admin]
  * Docker:  docker compose exec web php /var/www/html/seed.php
@@ -18,11 +18,12 @@ if (!defined('SITE_NAME')) {
 
 $config = require __DIR__ . '/config.php';
 require_once __DIR__ . '/includes/db.php';
+require_once __DIR__ . '/includes/schema_install.php';
 require_once __DIR__ . '/includes/functions.php';
 
 try {
     $pdo = db_connect($config);
-    $pdo->query('SELECT 1 FROM users LIMIT 1');
+    $pdo->query('SELECT 1');
     $dbOk = true;
     $dbError = '';
 } catch (Throwable $ex) {
@@ -221,11 +222,25 @@ function seed_log(string $type, string $msg, bool $isCli): void
 }
 
 if ($run && $dbOk) {
-    $hash = password_hash($seedPassword, PASSWORD_DEFAULT);
-    $addedUsers = 0;
-    $updatedUsers = 0;
+    $schemaPath = __DIR__ . '/sql/schema_for_hosting.sql';
+    try {
+        install_schema_from_file($pdo, $schemaPath);
+        seed_log('ok', 'Таблицы созданы или уже есть (schema_for_hosting.sql).', $isCli);
+    } catch (Throwable $ex) {
+        seed_log('error', 'Не удалось применить схему: ' . $ex->getMessage(), $isCli);
+        if ($isCli) {
+            exit(1);
+        }
+    }
 
-    foreach ($users as $u) {
+    if (!empty(array_filter($log, static fn (array $x): bool => $x['type'] === 'error'))) {
+        // Ошибка схемы — не продолжаем сид пользователей
+    } else {
+        $hash = password_hash($seedPassword, PASSWORD_DEFAULT);
+        $addedUsers = 0;
+        $updatedUsers = 0;
+
+        foreach ($users as $u) {
         $st = $pdo->prepare('SELECT id FROM users WHERE email = ?');
         $st->execute([$u['email']]);
         $row = $st->fetch();
@@ -243,42 +258,45 @@ if ($run && $dbOk) {
         } else {
             seed_log('skip', "Пользователь уже есть: {$u['email']} — пропуск", $isCli);
         }
-    }
-
-    $st = $pdo->prepare('SELECT id FROM users WHERE email = ? LIMIT 1');
-    $st->execute(['admin@example.com']);
-    $adminRow = $st->fetch();
-
-    if (!$adminRow) {
-        seed_log('error', 'Не найден admin@example.com после сида.', $isCli);
-        if ($isCli) exit(1);
-    } else {
-        $adminId = (int) $adminRow['id'];
-        $addedPosts = 0;
-
-        foreach ($posts as $p) {
-            $chk = $pdo->prepare('SELECT id FROM posts WHERE slug = ?');
-            $chk->execute([$p['slug']]);
-            if ($chk->fetch()) {
-                seed_log('skip', "Рецепт уже есть: {$p['slug']} — пропуск", $isCli);
-                continue;
-            }
-            $ins = $pdo->prepare('INSERT INTO posts (user_id, title, slug, category, image_path, excerpt, body, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?)');
-            $ins->execute([$adminId, $p['title'], $p['slug'], $p['category'] ?? null, $p['image_path'] ?? null, $p['excerpt'], $p['body'], $p['status'] ?? 'published']);
-            $addedPosts++;
-            seed_log('ok', "Рецепт добавлен: {$p['title']}", $isCli);
         }
 
-        seed_log('ok', "Готово. Пользователей: +{$addedUsers} обновлено: {$updatedUsers}, рецептов: +{$addedPosts}.", $isCli);
-        seed_log('ok', "Пароль для учётных записей сида: «{$seedPassword}»", $isCli);
-        $success = true;
+        $st = $pdo->prepare('SELECT id FROM users WHERE email = ? LIMIT 1');
+        $st->execute(['admin@example.com']);
+        $adminRow = $st->fetch();
+
+        if (!$adminRow) {
+            seed_log('error', 'Не найден admin@example.com после сида.', $isCli);
+            if ($isCli) {
+                exit(1);
+            }
+        } else {
+            $adminId = (int) $adminRow['id'];
+            $addedPosts = 0;
+
+            foreach ($posts as $p) {
+                $chk = $pdo->prepare('SELECT id FROM posts WHERE slug = ?');
+                $chk->execute([$p['slug']]);
+                if ($chk->fetch()) {
+                    seed_log('skip', "Рецепт уже есть: {$p['slug']} — пропуск", $isCli);
+                    continue;
+                }
+                $ins = $pdo->prepare('INSERT INTO posts (user_id, title, slug, category, image_path, excerpt, body, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?)');
+                $ins->execute([$adminId, $p['title'], $p['slug'], $p['category'] ?? null, $p['image_path'] ?? null, $p['excerpt'], $p['body'], $p['status'] ?? 'published']);
+                $addedPosts++;
+                seed_log('ok', "Рецепт добавлен: {$p['title']}", $isCli);
+            }
+
+            seed_log('ok', "Готово. Пользователей: +{$addedUsers} обновлено: {$updatedUsers}, рецептов: +{$addedPosts}.", $isCli);
+            seed_log('ok', "Пароль для учётных записей сида: «{$seedPassword}»", $isCli);
+            $success = true;
+        }
     }
 }
 
 // ─── Для CLI выходим здесь ────────────────────────────────────────────────────
 
 if ($isCli) {
-    exit(0);
+    exit($success ? 0 : ($run ? 1 : 0));
 }
 
 // ─── HTML-интерфейс (только для браузера) ─────────────────────────────────────

@@ -13,6 +13,14 @@ if (PHP_SAPI !== 'cli') {
 }
 
 if (session_status() !== PHP_SESSION_ACTIVE) {
+    // На части хостингов стандартный путь сессий недоступен на запись → 500 при session_start().
+    $sessionDir = dirname(__DIR__) . '/storage/sessions';
+    if (!is_dir($sessionDir)) {
+        @mkdir($sessionDir, 0755, true);
+    }
+    if (is_dir($sessionDir) && is_writable($sessionDir)) {
+        session_save_path($sessionDir);
+    }
     session_start();
 }
 

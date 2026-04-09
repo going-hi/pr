@@ -1,0 +1,3 @@
+# Файлы сессий PHP (создаются на сервере)
+storage/sessions/*
+!storage/sessions/.gitkeep
