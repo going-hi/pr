@@ -13,11 +13,11 @@ return [
             : 'https://goingh0o.beget.tech',
     ],
     'db' => [
-        'host' => getenv('DB_HOST') !== false && getenv('DB_HOST') !== '' ? (string) getenv('DB_HOST') : '127.0.0.1',
+        'host' => getenv('DB_HOST') !== false && getenv('DB_HOST') !== '' ? (string) getenv('DB_HOST') : 'localhost',
         'port' => (int) (getenv('DB_PORT') !== false && getenv('DB_PORT') !== '' ? getenv('DB_PORT') : '3306'),
-        'name' => getenv('DB_NAME') !== false && getenv('DB_NAME') !== '' ? (string) getenv('DB_NAME') : 'culinary_blog',
-        'user' => getenv('DB_USER') !== false && getenv('DB_USER') !== '' ? (string) getenv('DB_USER') : 'root',
-        'pass' => getenv('DB_PASS') !== false ? (string) getenv('DB_PASS') : '',
+        'name' => getenv('DB_NAME') !== false && getenv('DB_NAME') !== '' ? (string) getenv('DB_NAME') : 'goingh0o_main',
+        'user' => getenv('DB_USER') !== false && getenv('DB_USER') !== '' ? (string) getenv('DB_USER') : 'goingh0o_main',
+        'pass' => getenv('DB_PASS') !== false ? (string) getenv('DB_PASS') : 'goingh0o_log',
         'charset' => 'utf8mb4',
     ],
 ];
