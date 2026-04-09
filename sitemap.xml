@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Статическая карта сайта. При новых рецептах добавьте блок <url> и при необходимости обновите lastmod. -->
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url>
+    <loc>https://goingh0o.beget.tech/</loc>
+    <lastmod>2026-04-06</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>1.0</priority>
+  </url>
+  <url>
+    <loc>https://goingh0o.beget.tech/recipes.php</loc>
+    <lastmod>2026-04-06</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url><loc>https://goingh0o.beget.tech/post.php?slug=klassicheskij-borsch</loc><lastmod>2026-04-06</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://goingh0o.beget.tech/post.php?slug=kurinyj-sup-s-lapshoj</loc><lastmod>2026-04-06</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://goingh0o.beget.tech/post.php?slug=gribnoj-krem-sup</loc><lastmod>2026-04-06</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://goingh0o.beget.tech/post.php?slug=salat-olive</loc><lastmod>2026-04-06</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://goingh0o.beget.tech/post.php?slug=grecheskij-salat</loc><lastmod>2026-04-06</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://goingh0o.beget.tech/post.php?slug=tsezar-s-kuricej</loc><lastmod>2026-04-06</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://goingh0o.beget.tech/post.php?slug=pelmeni-domashnie</loc><lastmod>2026-04-06</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://goingh0o.beget.tech/post.php?slug=kotlety-po-domashnemu</loc><lastmod>2026-04-06</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://goingh0o.beget.tech/post.php?slug=pasta-karbonara</loc><lastmod>2026-04-06</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://goingh0o.beget.tech/post.php?slug=kurinie-bedra-v-duhovke</loc><lastmod>2026-04-06</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://goingh0o.beget.tech/post.php?slug=oladi-na-kefire</loc><lastmod>2026-04-06</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://goingh0o.beget.tech/post.php?slug=jaichnitsa-s-pomidorami</loc><lastmod>2026-04-06</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://goingh0o.beget.tech/post.php?slug=bananovy-pankeiki</loc><lastmod>2026-04-06</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://goingh0o.beget.tech/post.php?slug=sharlotka-s-jablokami</loc><lastmod>2026-04-06</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://goingh0o.beget.tech/post.php?slug=shokoladnyj-brauni</loc><lastmod>2026-04-06</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://goingh0o.beget.tech/post.php?slug=panna-kotta-vanilnaja</loc><lastmod>2026-04-06</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
+</urlset>

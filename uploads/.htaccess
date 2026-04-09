@@ -1,0 +1,4 @@
+# Запрет выполнения PHP в каталоге загрузок
+<IfModule mod_php.c>
+php_flag engine off
+</IfModule>

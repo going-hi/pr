@@ -1,0 +1,17 @@
+# Карта сайта (полный URL обязателен для поисковиков)
+Sitemap: https://goingh0o.beget.tech/sitemap.xml
+
+User-agent: *
+Allow: /
+
+Disallow: /admin/
+Disallow: /actions/
+Disallow: /includes/
+
+Disallow: /cabinet.php
+Disallow: /login.php
+Disallow: /register.php
+Disallow: /recipe-create.php
+Disallow: /recipe-edit.php
+Disallow: /logout.php
+Disallow: /seed.php

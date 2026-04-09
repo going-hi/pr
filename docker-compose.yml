@@ -1,0 +1,41 @@
+services:
+  db:
+    image: mysql:8.0
+    command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+    environment:
+      MYSQL_ROOT_PASSWORD: rootsecret
+      MYSQL_DATABASE: culinary_blog
+      MYSQL_USER: blog
+      MYSQL_PASSWORD: blogpass
+    ports:
+      - "3307:3306"
+    volumes:
+      - db_data:/var/lib/mysql
+      - ./sql/schema.sql:/docker-entrypoint-initdb.d/01-schema.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h localhost -uroot -prootsecret || exit 1"]
+      interval: 5s
+      timeout: 5s
+      retries: 15
+      start_period: 25s
+
+  web:
+    build: .
+    ports:
+      - "8080:80"
+    volumes:
+      - .:/var/www/html
+    environment:
+      DB_HOST: db
+      DB_PORT: "3306"
+      DB_NAME: culinary_blog
+      DB_USER: blog
+      DB_PASS: blogpass
+      # Локально canonical/OG/sitemap не ведут на Beget; на хостинге Beget эту строку уберите из compose или задайте https://goingh0o.beget.tech
+      SITE_URL: http://localhost:8080
+    depends_on:
+      db:
+        condition: service_healthy
+
+volumes:
+  db_data:
