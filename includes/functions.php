@@ -245,3 +245,45 @@ function render_recipe_card(array $p, bool $showExcerpt = true): void
     </article>
     <?php
 }
+
+/**
+ * HTML-страница «404» в оформлении сайта и завершение запроса.
+ */
+function render_not_found_page(string $message = ''): never
+{
+    if (!headers_sent()) {
+        http_response_code(404);
+    }
+
+    $pageTitle = 'Страница не найдена — ' . SITE_NAME;
+    $activeNav = '';
+    $metaDescription = 'Запрашиваемая страница не существует или была удалена.';
+    $metaRobots = 'noindex, nofollow';
+    $canonicalUrl = absolute_url('/404.php');
+    $schemaJsonLd = null;
+
+    $failedUri = (string) ($_SERVER['REDIRECT_URL'] ?? $_SERVER['REQUEST_URI'] ?? '/');
+    $failedPath = strtok($failedUri, '?') ?: '/';
+
+    require __DIR__ . '/header.php';
+    ?>
+    <div class="auth-wrap">
+        <div class="form-card" style="width:100%;max-width:28rem;text-align:center">
+            <p class="hero-eyebrow" style="margin-top:0">Ошибка 404</p>
+            <h1 style="font-size:1.75rem;margin-bottom:.5rem">Страница не найдена</h1>
+            <?php if ($message !== ''): ?>
+                <p style="color:var(--muted);margin-bottom:1rem"><?= e($message) ?></p>
+            <?php else: ?>
+                <p style="color:var(--muted);margin-bottom:1rem">Возможно, ссылка устарела или в адресе опечатка.</p>
+            <?php endif; ?>
+            <p style="color:var(--muted);font-size:.875rem;margin-bottom:1.5rem">Запрос: <code><?= e($failedPath) ?></code></p>
+            <div class="row-actions" style="justify-content:center">
+                <a href="/index.php" class="btn btn-primary">На главную</a>
+                <a href="/recipes.php" class="btn btn-secondary">Все рецепты</a>
+            </div>
+        </div>
+    </div>
+    <?php
+    require __DIR__ . '/footer.php';
+    exit;
+}

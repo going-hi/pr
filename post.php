@@ -4,7 +4,9 @@ declare(strict_types=1);
 require __DIR__ . '/includes/bootstrap.php';
 
 $slug = trim((string) ($_GET['slug'] ?? ''));
-if ($slug === '') { http_response_code(404); echo 'Не найдено.'; exit; }
+if ($slug === '') {
+    render_not_found_page('Не указан рецепт.');
+}
 
 $user = current_user();
 
@@ -19,16 +21,16 @@ $st = db()->prepare(
 $st->execute([$slug]);
 $post = $st->fetch();
 
-if (!$post) { http_response_code(404); echo 'Рецепт не найден.'; exit; }
+if (!$post) {
+    render_not_found_page('Такого рецепта нет в базе.');
+}
 
 $status = (string) ($post['status'] ?? 'published');
 $isOwner = $user !== null && (int) $user['id'] === (int) $post['user_id'];
 $isAdmin = $user !== null && ($user['role'] ?? '') === 'admin';
 $isPublic = post_is_published($status);
 if (!$isPublic && !$isOwner && !$isAdmin) {
-    http_response_code(404);
-    echo 'Рецепт не найден.';
-    exit;
+    render_not_found_page('Рецепт недоступен или снят с публикации.');
 }
 
 $allowSocial = $isPublic;

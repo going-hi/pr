@@ -7,9 +7,7 @@ $user = require_login();
 
 $id = (int) ($_GET['id'] ?? 0);
 if ($id <= 0) {
-    http_response_code(404);
-    echo 'Не найдено.';
-    exit;
+    render_not_found_page('Рецепт не найден.');
 }
 
 $st = db()->prepare('SELECT * FROM posts WHERE id = ? LIMIT 1');
@@ -17,9 +15,7 @@ $st->execute([$id]);
 $post = $st->fetch();
 
 if (!$post) {
-    http_response_code(404);
-    echo 'Рецепт не найден.';
-    exit;
+    render_not_found_page('Рецепт не найден.');
 }
 
 if ((int) $user['id'] !== (int) $post['user_id'] && $user['role'] !== 'admin') {

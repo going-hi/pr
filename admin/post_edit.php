@@ -17,9 +17,7 @@ if ($id > 0) {
     $st->execute([$id]);
     $post = $st->fetch();
     if (!$post) {
-        http_response_code(404);
-        echo 'Запись не найдена.';
-        exit;
+        render_not_found_page('Запись не найдена.');
     }
 }
 

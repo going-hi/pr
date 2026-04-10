@@ -2,7 +2,8 @@
 declare(strict_types=1);
 
 /**
- * Сидер: создаёт таблицы (sql/schema_for_hosting.sql) при необходимости и заливает демо-данные.
+ * Сидер: создаёт таблицы (sql/schema_for_hosting.sql) при необходимости и заливает демо-данные:
+ * пользователи, рецепты с разными авторами, лайки, избранное, комментарии.
  * Браузер: http://localhost:8080/seed.php
  * CLI:     php seed.php [--reset-admin]
  * Docker:  docker compose exec web php /var/www/html/seed.php
@@ -49,6 +50,29 @@ $seedPassword = 'password';
 $users = [
     ['email' => 'admin@example.com', 'full_name' => 'Администратор', 'role' => 'admin'],
     ['email' => 'cook@example.com',  'full_name' => 'Повар Пётр',    'role' => 'user'],
+    ['email' => 'maria@example.com', 'full_name' => 'Мария Соколова', 'role' => 'user'],
+    ['email' => 'oleg@example.com',  'full_name' => 'Олег Морозов', 'role' => 'user'],
+    ['email' => 'anna@example.com',  'full_name' => 'Анна Воронова', 'role' => 'user'],
+    ['email' => 'dmitry@example.com', 'full_name' => 'Дмитрий Козлов', 'role' => 'user'],
+    ['email' => 'elena@example.com', 'full_name' => 'Елена Белова', 'role' => 'user'],
+];
+
+/** Автор рецепта по slug, если в записи нет ключа author_email (по умолчанию — админ). */
+$postAuthorBySlug = [
+    'klassicheskij-borsch'     => 'cook@example.com',
+    'kurinyj-sup-s-lapshoj'     => 'maria@example.com',
+    'salat-olive'               => 'elena@example.com',
+    'grecheskij-salat'          => 'maria@example.com',
+    'tsezar-s-kuricej'          => 'dmitry@example.com',
+    'pelmeni-domashnie'         => 'cook@example.com',
+    'kotlety-po-domashnemu'     => 'oleg@example.com',
+    'kurinie-bedra-v-duhovke'   => 'dmitry@example.com',
+    'oladi-na-kefire'           => 'elena@example.com',
+    'jaichnitsa-s-pomidorami'   => 'oleg@example.com',
+    'bananovy-pankeiki'         => 'anna@example.com',
+    'sharlotka-s-jablokami'     => 'maria@example.com',
+    'shokoladnyj-brauni'        => 'anna@example.com',
+    'panna-kotta-vanilnaja'     => 'elena@example.com',
 ];
 
 $posts = [
@@ -205,6 +229,124 @@ $posts = [
         'body'      => "Ингредиенты:\n- сливки 33% — 500 мл\n- сахар — 4 ст. л.\n- желатин — 10 г\n- ванильный стручок (или экстракт) — 1 шт.\n- ягоды для подачи\n\nПриготовление:\n1. Замочите желатин в 50 мл холодной воды на 10 мин.\n2. Нагрейте сливки с сахаром и ванилью, не доводя до кипения.\n3. Снимите с огня, добавьте набухший желатин, перемешайте до растворения.\n4. Разлейте по формочкам, уберите в холодильник на 4 часа.\n5. Подавайте с ягодным соусом или свежими ягодами.",
         'status' => 'published',
     ],
+
+    // ── Рецепты сообщества (дополнительно) ───────────────────────────────────
+    [
+        'title'     => 'Сырный суп с брокколи',
+        'slug'      => 'syrnyj-sup-s-brokkoli',
+        'category'  => 'soups',
+        'image_path'=> '/assets/img/recipes/mushroom-soup.jpg',
+        'author_email' => 'maria@example.com',
+        'excerpt'   => 'Нежный крем-суп: дети едят брокколи без капризов.',
+        'body'      => "Ингредиенты:\n- брокколи — 400 г\n- картофель — 2 шт.\n- лук — 1 шт.\n- плавленый сыр «Дружба» — 200 г\n- бульон куриный — 700 мл\n- сливки — 100 мл\n- соль, перец, мускат\n\nПриготовление:\n1. Обжарьте лук, добавьте нарезанный картофель и брокколи.\n2. Влейте бульон, варите 15 мин до мягкости овощей.\n3. Добавьте сыр, размешайте до растворения.\n4. Пробейте блендером, влейте сливки, прогрейте.\n5. Приправьте по вкусу.",
+        'status' => 'published',
+    ],
+    [
+        'title'     => 'Ленивые голубцы в духовке',
+        'slug'      => 'lenivye-golubtsy-v-duhovke',
+        'category'  => 'hot',
+        'image_path'=> '/assets/img/recipes/cutlets.jpg',
+        'author_email' => 'oleg@example.com',
+        'excerpt'   => 'Всё в одной форме — без возни с листьями капусты.',
+        'body'      => "Ингредиенты:\n- фарш смешанный — 600 г\n- рис отварной — 200 г\n- капуста тёртая — 300 г\n- морковь, лук — по 1 шт.\n- томатная паста — 2 ст. л.\n- сметана — 3 ст. л.\n- соль, перец\n\nПриготовление:\n1. Смешайте фарш, рис, капусту, тёртые овощи, специи.\n2. Выложите «котлеты» в форму.\n3. Смешайте пасту, сметану и стакан воды — залейте.\n4. Запекайте под фольгой 40 мин при 180 °C, снимите фольгу ещё на 10 мин.",
+        'status' => 'published',
+    ],
+    [
+        'title'     => 'Сырники из творога (пышные)',
+        'slug'      => 'syrniki-iz-tvoroga-pyshnye',
+        'category'  => 'breakfast',
+        'image_path'=> '/assets/img/recipes/pancakes.jpg',
+        'author_email' => 'anna@example.com',
+        'excerpt'   => 'С манкой внутри держат форму и не разваливаются.',
+        'body'      => "Ингредиенты:\n- творог 9% — 400 г\n- яйцо — 1 шт.\n- сахар — 3 ст. л.\n- манка — 3 ст. л.\n- мука для обвалки\n- соль — щепотка\n- масло для жарки\n\nПриготовление:\n1. Разомните творог с яйцом и сахаром.\n2. Всыпьте манку, оставьте на 15 мин.\n3. Сформируйте лепёшки, обваляйте в муке.\n4. Жарьте на среднем огне по 3 мин с каждой стороны.\n5. Подавайте со сметаной или вареньем.",
+        'status' => 'published',
+    ],
+    [
+        'title'     => 'Лимонный кекс на кефире',
+        'slug'      => 'limonnyj-keks-na-kefire',
+        'category'  => 'bakery',
+        'image_path'=> '/assets/img/recipes/charlotte.jpg',
+        'author_email' => 'elena@example.com',
+        'excerpt'   => 'Ароматный, с цедрой — к чаю в выходные.',
+        'body'      => "Ингредиенты:\n- кефир — 200 мл\n- яйца — 3 шт.\n- сахар — 180 г\n- мука — 220 г\n- разрыхлитель — 1 ч. л.\n- лимон — 1 шт. (цедра + сок)\n- растительное масло — 80 мл\n\nПриготовление:\n1. Взбейте яйца с сахаром, влейте кефир и масло.\n2. Добавьте цедру и ложку лимонного сока.\n3. Введите муку с разрыхлителем.\n4. Выпекайте в смазанной форме 40–45 мин при 170 °C.",
+        'status' => 'published',
+    ],
+    [
+        'title'     => 'Гречка с курицей и овощами',
+        'slug'      => 'grechka-s-kuricej-i-ovoshhami',
+        'category'  => 'hot',
+        'image_path'=> '/assets/img/recipes/chicken-oven.jpg',
+        'author_email' => 'dmitry@example.com',
+        'excerpt'   => 'Одна сковорода — ужин за полчаса.',
+        'body'      => "Ингредиенты:\n- куриное филе — 400 г\n- гречка — 1 стакан\n- лук, морковь — по 1 шт.\n- чеснок — 2 зубчика\n- вода — 2 стакана\n- соль, перец, паприка, зелень\n\nПриготовление:\n1. Обжарьте кубики курицы до румянца, выньте.\n2. На том же масле — лук и морковь, добавьте гречку, обжарьте 2 мин.\n3. Верните курицу, влейте воду, чеснок, специи.\n4. Тушите под крышкой 18–20 мин до готовности гречки.\n5. Посыпьте зеленью.",
+        'status' => 'published',
+    ],
+];
+
+/** Лайки: повторный запуск не дублирует (UNIQUE post_id, user_id). */
+$seedLikes = [
+    ['slug' => 'klassicheskij-borsch', 'email' => 'maria@example.com'],
+    ['slug' => 'klassicheskij-borsch', 'email' => 'oleg@example.com'],
+    ['slug' => 'klassicheskij-borsch', 'email' => 'anna@example.com'],
+    ['slug' => 'pelmeni-domashnie', 'email' => 'maria@example.com'],
+    ['slug' => 'pelmeni-domashnie', 'email' => 'dmitry@example.com'],
+    ['slug' => 'pelmeni-domashnie', 'email' => 'elena@example.com'],
+    ['slug' => 'shokoladnyj-brauni', 'email' => 'cook@example.com'],
+    ['slug' => 'shokoladnyj-brauni', 'email' => 'oleg@example.com'],
+    ['slug' => 'pasta-karbonara', 'email' => 'maria@example.com'],
+    ['slug' => 'pasta-karbonara', 'email' => 'anna@example.com'],
+    ['slug' => 'gribnoj-krem-sup', 'email' => 'elena@example.com'],
+    ['slug' => 'grecheskij-salat', 'email' => 'dmitry@example.com'],
+    ['slug' => 'tsezar-s-kuricej', 'email' => 'anna@example.com'],
+    ['slug' => 'kurinyj-sup-s-lapshoj', 'email' => 'oleg@example.com'],
+    ['slug' => 'kotlety-po-domashnemu', 'email' => 'maria@example.com'],
+    ['slug' => 'bananovy-pankeiki', 'email' => 'elena@example.com'],
+    ['slug' => 'sharlotka-s-jablokami', 'email' => 'cook@example.com'],
+    ['slug' => 'syrnyj-sup-s-brokkoli', 'email' => 'cook@example.com'],
+    ['slug' => 'syrnyj-sup-s-brokkoli', 'email' => 'oleg@example.com'],
+    ['slug' => 'syrniki-iz-tvoroga-pyshnye', 'email' => 'maria@example.com'],
+    ['slug' => 'syrniki-iz-tvoroga-pyshnye', 'email' => 'dmitry@example.com'],
+    ['slug' => 'grechka-s-kuricej-i-ovoshhami', 'email' => 'anna@example.com'],
+    ['slug' => 'lenivye-golubtsy-v-duhovke', 'email' => 'maria@example.com'],
+];
+
+$seedFavorites = [
+    ['slug' => 'klassicheskij-borsch', 'email' => 'maria@example.com'],
+    ['slug' => 'pelmeni-domashnie', 'email' => 'oleg@example.com'],
+    ['slug' => 'shokoladnyj-brauni', 'email' => 'anna@example.com'],
+    ['slug' => 'pasta-karbonara', 'email' => 'dmitry@example.com'],
+    ['slug' => 'gribnoj-krem-sup', 'email' => 'elena@example.com'],
+    ['slug' => 'bananovy-pankeiki', 'email' => 'anna@example.com'],
+    ['slug' => 'syrniki-iz-tvoroga-pyshnye', 'email' => 'elena@example.com'],
+    ['slug' => 'limonnyj-keks-na-kefire', 'email' => 'cook@example.com'],
+    ['slug' => 'grechka-s-kuricej-i-ovoshhami', 'email' => 'oleg@example.com'],
+];
+
+$seedComments = [
+    ['slug' => 'klassicheskij-borsch', 'email' => 'maria@example.com', 'body' => 'Готовила по рецепту — борщ получился насыщенным. Добавила щепотку сахара в зажарку, как учила бабушка.'],
+    ['slug' => 'klassicheskij-borsch', 'email' => 'oleg@example.com', 'body' => 'Варил в мультиварке на режиме «Тушение» — тоже отлично. На второй день ещё вкуснее.'],
+    ['slug' => 'klassicheskij-borsch', 'email' => 'elena@example.com', 'body' => 'Фото бы выложили в конце, а так рецепт понятный, спасибо!'],
+    ['slug' => 'pelmeni-domashnie', 'email' => 'dmitry@example.com', 'body' => 'Тесто тонкое получилось. Фарш взял с говядиной побольше — сочнее.'],
+    ['slug' => 'pelmeni-domashnie', 'email' => 'anna@example.com', 'body' => 'Лепила вдвоём с сестрой, за вечер 200 штук. Заморозили — супер заготовка.'],
+    ['slug' => 'shokoladnyj-brauni', 'email' => 'maria@example.com', 'body' => 'Пекла 22 минуты — центр остался влажным, как надо. Орехи горького шоколада сверху добавила.'],
+    ['slug' => 'shokoladnyj-brauni', 'email' => 'cook@example.com', 'body' => 'Профессиональный совет: не пересушите. Если сомневаетесь — лучше достаньте раньше.'],
+    ['slug' => 'pasta-karbonara', 'email' => 'oleg@example.com', 'body' => 'Без сливок — реально кремовая. Главное сразу есть, пока горячая.'],
+    ['slug' => 'pasta-karbonara', 'email' => 'elena@example.com', 'body' => 'Заменила панчетту на обычный бекон из магазина — тоже зашло.'],
+    ['slug' => 'gribnoj-krem-sup', 'email' => 'maria@example.com', 'body' => 'Взяла лесные грибы замороженные — аромат сильнее, чем со шампиньонами.'],
+    ['slug' => 'grecheskij-salat', 'email' => 'anna@example.com', 'body' => 'Лёгкий ужин летом. Фету режу крупнее, чтобы чувствовалась.'],
+    ['slug' => 'tsezar-s-kuricej', 'email' => 'elena@example.com', 'body' => 'Крутоны делала из багета с чесноком — хрустят идеально.'],
+    ['slug' => 'kurinyj-sup-s-lapshoj', 'email' => 'dmitry@example.com', 'body' => 'Дети просят этот суп каждую неделю. Лапшу иногда меняю на вермишель.'],
+    ['slug' => 'salat-olive', 'email' => 'oleg@example.com', 'body' => 'Классика. Колбасу взял докторскую — как в детстве.'],
+    ['slug' => 'kotlety-po-domashnemu', 'email' => 'maria@example.com', 'body' => 'Сочные, с хрустящей корочкой. Батон обязательно отжать хорошо.'],
+    ['slug' => 'bananovy-pankeiki', 'email' => 'elena@example.com', 'body' => 'На завтрак для малыша — готовится за 10 минут. Добавила корицу.'],
+    ['slug' => 'sharlotka-s-jablokami', 'email' => 'cook@example.com', 'body' => 'Яблоки антоновка — лучший вариант, кислинка балансирует сладость.'],
+    ['slug' => 'panna-kotta-vanilnaja', 'email' => 'anna@example.com', 'body' => 'Готовила с агар-агаром вместо желатина — тоже держится. Ягодный топпинг — огонь.'],
+    ['slug' => 'syrnyj-sup-s-brokkoli', 'email' => 'dmitry@example.com', 'body' => 'Не ожидал, что брокколи так зайдёт. Жена просит на ужин раз в неделю.'],
+    ['slug' => 'syrnyj-sup-s-brokkoli', 'email' => 'oleg@example.com', 'body' => 'Чуть разбавил молоком — был густоват. Вкус насыщенный.'],
+    ['slug' => 'syrniki-iz-tvoroga-pyshnye', 'email' => 'maria@example.com', 'body' => 'Манка реально спасает от «течёжки». Жарю на среднем огне без спешки.'],
+    ['slug' => 'lenivye-golubtsy-v-duhovke', 'email' => 'anna@example.com', 'body' => 'Удобнее классических голубцов в разы. Заливка с томатом заходит.'],
+    ['slug' => 'grechka-s-kuricej-i-ovoshhami', 'email' => 'elena@example.com', 'body' => 'Быстро и сытно. Добавила замороженный горошек в конце — цвета больше.'],
+    ['slug' => 'limonnyj-keks-na-kefire', 'email' => 'dmitry@example.com', 'body' => 'Кекс не сухой, лимон чувствуется. На работу нарезал на батончики.'],
 ];
 
 // ─── Выполнение сидера ────────────────────────────────────────────────────────
@@ -241,36 +383,42 @@ if ($run && $dbOk) {
         $updatedUsers = 0;
 
         foreach ($users as $u) {
-        $st = $pdo->prepare('SELECT id FROM users WHERE email = ?');
-        $st->execute([$u['email']]);
-        $row = $st->fetch();
+            $st = $pdo->prepare('SELECT id FROM users WHERE email = ?');
+            $st->execute([$u['email']]);
+            $row = $st->fetch();
 
-        if (!$row) {
-            $ins = $pdo->prepare('INSERT INTO users (email, password_hash, full_name, role) VALUES (?, ?, ?, ?)');
-            $ins->execute([$u['email'], $hash, $u['full_name'], $u['role']]);
-            $addedUsers++;
-            seed_log('ok', "Пользователь создан: {$u['email']} (роль: {$u['role']})", $isCli);
-        } elseif ($resetAdmin && $u['email'] === 'admin@example.com') {
-            $up = $pdo->prepare('UPDATE users SET password_hash = ?, full_name = ?, role = ? WHERE email = ?');
-            $up->execute([$hash, $u['full_name'], $u['role'], $u['email']]);
-            $updatedUsers++;
-            seed_log('ok', "Администратор обновлён: пароль снова «{$seedPassword}»", $isCli);
-        } else {
-            seed_log('skip', "Пользователь уже есть: {$u['email']} — пропуск", $isCli);
+            if (!$row) {
+                $ins = $pdo->prepare('INSERT INTO users (email, password_hash, full_name, role) VALUES (?, ?, ?, ?)');
+                $ins->execute([$u['email'], $hash, $u['full_name'], $u['role']]);
+                $addedUsers++;
+                seed_log('ok', "Пользователь создан: {$u['email']} (роль: {$u['role']})", $isCli);
+            } elseif ($resetAdmin && $u['email'] === 'admin@example.com') {
+                $up = $pdo->prepare('UPDATE users SET password_hash = ?, full_name = ?, role = ? WHERE email = ?');
+                $up->execute([$hash, $u['full_name'], $u['role'], $u['email']]);
+                $updatedUsers++;
+                seed_log('ok', "Администратор обновлён: пароль снова «{$seedPassword}»", $isCli);
+            } else {
+                seed_log('skip', "Пользователь уже есть: {$u['email']} — пропуск", $isCli);
+            }
         }
+
+        $userIds = [];
+        $stUserId = $pdo->prepare('SELECT id FROM users WHERE email = ? LIMIT 1');
+        foreach ($users as $u) {
+            $stUserId->execute([$u['email']]);
+            $ur = $stUserId->fetch();
+            if ($ur) {
+                $userIds[$u['email']] = (int) $ur['id'];
+            }
         }
 
-        $st = $pdo->prepare('SELECT id FROM users WHERE email = ? LIMIT 1');
-        $st->execute(['admin@example.com']);
-        $adminRow = $st->fetch();
-
-        if (!$adminRow) {
+        if (!isset($userIds['admin@example.com'])) {
             seed_log('error', 'Не найден admin@example.com после сида.', $isCli);
             if ($isCli) {
                 exit(1);
             }
         } else {
-            $adminId = (int) $adminRow['id'];
+            $adminId = $userIds['admin@example.com'];
             $addedPosts = 0;
 
             foreach ($posts as $p) {
@@ -280,13 +428,70 @@ if ($run && $dbOk) {
                     seed_log('skip', "Рецепт уже есть: {$p['slug']} — пропуск", $isCli);
                     continue;
                 }
+                $wantAuthor = $p['author_email'] ?? $postAuthorBySlug[$p['slug']] ?? 'admin@example.com';
+                if (!isset($userIds[$wantAuthor])) {
+                    seed_log('skip', "Автор «{$wantAuthor}» не найден для «{$p['slug']}» — рецепт от админа.", $isCli);
+                    $authorId = $adminId;
+                    $logAuthor = 'admin@example.com';
+                } else {
+                    $authorId = $userIds[$wantAuthor];
+                    $logAuthor = $wantAuthor;
+                }
                 $ins = $pdo->prepare('INSERT INTO posts (user_id, title, slug, category, image_path, excerpt, body, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?)');
-                $ins->execute([$adminId, $p['title'], $p['slug'], $p['category'] ?? null, $p['image_path'] ?? null, $p['excerpt'], $p['body'], $p['status'] ?? 'published']);
+                $ins->execute([$authorId, $p['title'], $p['slug'], $p['category'] ?? null, $p['image_path'] ?? null, $p['excerpt'], $p['body'], $p['status'] ?? 'published']);
                 $addedPosts++;
-                seed_log('ok', "Рецепт добавлен: {$p['title']}", $isCli);
+                seed_log('ok', "Рецепт добавлен: {$p['title']} (автор: {$logAuthor})", $isCli);
             }
 
-            seed_log('ok', "Готово. Пользователей: +{$addedUsers} обновлено: {$updatedUsers}, рецептов: +{$addedPosts}.", $isCli);
+            $addedLikes = 0;
+            $stLike = $pdo->prepare('INSERT IGNORE INTO likes (post_id, user_id) VALUES (?, ?)');
+            $stPostId = $pdo->prepare('SELECT id FROM posts WHERE slug = ? LIMIT 1');
+            foreach ($seedLikes as $row) {
+                $stPostId->execute([$row['slug']]);
+                $pr = $stPostId->fetch();
+                if (!$pr || !isset($userIds[$row['email']])) {
+                    continue;
+                }
+                $stLike->execute([(int) $pr['id'], $userIds[$row['email']]]);
+                if ($stLike->rowCount() > 0) {
+                    $addedLikes++;
+                }
+            }
+
+            $addedFavs = 0;
+            $stFav = $pdo->prepare('INSERT IGNORE INTO favorites (post_id, user_id) VALUES (?, ?)');
+            foreach ($seedFavorites as $row) {
+                $stPostId->execute([$row['slug']]);
+                $pr = $stPostId->fetch();
+                if (!$pr || !isset($userIds[$row['email']])) {
+                    continue;
+                }
+                $stFav->execute([(int) $pr['id'], $userIds[$row['email']]]);
+                if ($stFav->rowCount() > 0) {
+                    $addedFavs++;
+                }
+            }
+
+            $addedComments = 0;
+            $chkComment = $pdo->prepare('SELECT 1 FROM comments WHERE post_id = ? AND user_id = ? AND body = ? LIMIT 1');
+            $insComment = $pdo->prepare('INSERT INTO comments (post_id, user_id, body) VALUES (?, ?, ?)');
+            foreach ($seedComments as $row) {
+                $stPostId->execute([$row['slug']]);
+                $pr = $stPostId->fetch();
+                if (!$pr || !isset($userIds[$row['email']])) {
+                    continue;
+                }
+                $pid = (int) $pr['id'];
+                $uid = $userIds[$row['email']];
+                $chkComment->execute([$pid, $uid, $row['body']]);
+                if ($chkComment->fetch()) {
+                    continue;
+                }
+                $insComment->execute([$pid, $uid, $row['body']]);
+                $addedComments++;
+            }
+
+            seed_log('ok', "Готово. Пользователей: +{$addedUsers} обновлено: {$updatedUsers}, рецептов: +{$addedPosts}, лайков: +{$addedLikes}, в избранном: +{$addedFavs}, комментариев: +{$addedComments}.", $isCli);
             seed_log('ok', "Пароль для учётных записей сида: «{$seedPassword}»", $isCli);
             $success = true;
         }
@@ -357,7 +562,7 @@ if ($isCli) {
             <a class="btn btn-primary" href="/index.php">На главную</a>
         </div>
     <?php else: ?>
-        <p class="lead">Сначала создаёт таблицы из <code>sql/schema_for_hosting.sql</code> (если их ещё нет), затем добавляет демо-пользователей и рецепты. Повторный запуск безопасен — дубликаты пропускаются.</p>
+        <p class="lead">Сначала создаёт таблицы из <code>sql/schema_for_hosting.sql</code> (если их ещё нет), затем добавляет демо-пользователей, рецепты с разными авторами, лайки, избранное и комментарии. Повторный запуск безопасен: пользователи и посты по slug не дублируются; лайки и избранное — через <code>INSERT IGNORE</code>; комментарии — только если такой же текст ещё не был добавлен.</p>
         <div class="card" style="margin-bottom:1.5rem">
             <h2 style="margin-top:0">Что будет создано</h2>
             <p><strong>Пользователи</strong> (если не существуют):</p>
@@ -366,12 +571,16 @@ if ($isCli) {
                     <li><?= e($u['email']) ?> — <?= e($u['role'] === 'admin' ? 'Администратор' : 'Пользователь') ?>, пароль: <code><?= e($seedPassword) ?></code></li>
                 <?php endforeach; ?>
             </ul>
-            <p><strong>Рецепты</strong> (если slug не занят):</p>
+            <p><strong>Рецепты</strong> (если slug не занят), у части указаны авторы из списка выше; без привязки — от админа:</p>
             <ul>
                 <?php foreach ($posts as $p): ?>
-                    <li><?= e($p['title']) ?></li>
+                    <?php
+                    $ae = $p['author_email'] ?? $postAuthorBySlug[$p['slug']] ?? 'admin@example.com';
+                    ?>
+                    <li><?= e($p['title']) ?> — автор: <code><?= e($ae) ?></code></li>
                 <?php endforeach; ?>
             </ul>
+            <p><strong>Активность</strong>: до <?= count($seedLikes) ?> лайков, <?= count($seedFavorites) ?> записей в избранном, <?= count($seedComments) ?> комментариев (для существующих постов с подходящими slug).</p>
         </div>
         <form method="post" action="">
             <div class="form-group">
