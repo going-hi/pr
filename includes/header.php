@@ -103,6 +103,7 @@ $schemaPayload = isset($schemaJsonLd) ? $schemaJsonLd : null;
         <nav class="nav">
             <a href="/index.php" class="<?= $activeNav === 'home' ? 'active' : '' ?>">Главная</a>
             <a href="/recipes.php" class="<?= $activeNav === 'recipes' ? 'active' : '' ?>">Рецепты</a>
+            <a href="/contacts.php" class="<?= $activeNav === 'contacts' ? 'active' : '' ?>">Контакты</a>
             <?php if ($user): ?>
                 <a href="/recipe-create.php" class="<?= $activeNav === 'create' ? 'active' : '' ?>">+ Добавить</a>
                 <a href="/cabinet.php" class="<?= $activeNav === 'cabinet' ? 'active' : '' ?>">Кабинет</a>

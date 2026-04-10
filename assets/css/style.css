@@ -953,6 +953,9 @@ table.data tr:hover td { background: #fdfaf6; }
 .link-btn:hover { color: #b71c1c; }
 
 table.data td.comment-cell { max-width: 280px; vertical-align: top; line-height: 1.4; }
+table.data tr.row-unread td { background: #fff8f0; }
+table.data tr.row-unread:hover td { background: #fff3e6; }
+.badge-unread { color: var(--primary); font-size: 1rem; line-height: 1; }
 
 /* ── Пустое состояние ───────────────────────────────────────────────────────── */
 .empty-state {

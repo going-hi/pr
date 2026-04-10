@@ -12,6 +12,7 @@
         <nav class="footer-links">
             <a href="/index.php">Главная</a>
             <a href="/recipes.php">Рецепты</a>
+            <a href="/contacts.php">Контакты</a>
             <a href="/register.php">Регистрация</a>
         </nav>
     </div>

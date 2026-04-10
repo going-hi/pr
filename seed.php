@@ -3,7 +3,7 @@ declare(strict_types=1);
 
 /**
  * Сидер: создаёт таблицы (sql/schema_for_hosting.sql) при необходимости и заливает демо-данные:
- * пользователи, рецепты с разными авторами, лайки, избранное, комментарии.
+ * пользователи, рецепты с разными авторами, лайки, избранное, комментарии, демо-сообщения формы «Контакты».
  * Браузер: http://localhost:8080/seed.php
  * CLI:     php seed.php [--reset-admin]
  * Docker:  docker compose exec web php /var/www/html/seed.php
@@ -349,6 +349,45 @@ $seedComments = [
     ['slug' => 'limonnyj-keks-na-kefire', 'email' => 'dmitry@example.com', 'body' => 'Кекс не сухой, лимон чувствуется. На работу нарезал на батончики.'],
 ];
 
+/** Демо-сообщения формы «Контакты» (идемпотентность по уникальному subject). */
+$seedContactMessages = [
+    [
+        'name' => 'Ирина Ковалева',
+        'email' => 'guest-irina@example.com',
+        'subject' => 'Демо: спасибо за рецепт борща',
+        'body' => 'Здравствуйте! Готовила ваш классический борщ — получился таким же насыщенным, как в детстве. Добавьте, пожалуйста, в подсказки время активного приготовления отдельно от варки бульона. Спасибо за проект!',
+        'is_read' => 1,
+    ],
+    [
+        'name' => 'Сергей Павлов',
+        'email' => 'guest-sergey@example.com',
+        'subject' => 'Демо: идея — раздел «Бюджетные ужины»',
+        'body' => 'Добрый день. Предлагаю завести тег или подборку рецептов до 200 рублей на порцию. Думаю, многим студентам и молодым семьям было бы полезно. Готов помочь с контентом.',
+        'is_read' => 1,
+    ],
+    [
+        'name' => 'Марина',
+        'email' => 'guest-marina@example.com',
+        'subject' => 'Демо: вопрос по загрузке фото',
+        'body' => 'Пытаюсь добавить рецепт с телефона — после выбора файла крутится долго и ничего не происходит. Интернет стабильный, фото около 2 МБ. Что можно попробовать?',
+        'is_read' => 0,
+    ],
+    [
+        'name' => 'Алексей',
+        'email' => 'guest-alex@example.com',
+        'subject' => 'Демо: сотрудничество (блог о еде)',
+        'body' => 'Мы ведём небольшой кулинарный канал и хотели бы обменяться ссылками или подготовить гостевой рецепт. Напишите, если вам интересен такой формат.',
+        'is_read' => 0,
+    ],
+    [
+        'name' => 'Наталья В.',
+        'email' => 'guest-natalya@example.com',
+        'subject' => 'Демо: опечатка в ингредиентах',
+        'body' => 'В рецепте оладий на кефире, кажется, перепутаны граммы муки в тексте и в кратком списке. Проверьте, пожалуйста. Оладушки всё равно получились отличные :)',
+        'is_read' => 0,
+    ],
+];
+
 // ─── Выполнение сидера ────────────────────────────────────────────────────────
 
 $log = [];
@@ -491,7 +530,32 @@ if ($run && $dbOk) {
                 $addedComments++;
             }
 
-            seed_log('ok', "Готово. Пользователей: +{$addedUsers} обновлено: {$updatedUsers}, рецептов: +{$addedPosts}, лайков: +{$addedLikes}, в избранном: +{$addedFavs}, комментариев: +{$addedComments}.", $isCli);
+            $addedContact = 0;
+            $chkContactSub = $pdo->prepare('SELECT id FROM contact_messages WHERE subject = ? LIMIT 1');
+            $insContact = $pdo->prepare(
+                'INSERT INTO contact_messages (name, email, subject, body, is_read) VALUES (?,?,?,?,?)'
+            );
+            foreach ($seedContactMessages as $row) {
+                $chkContactSub->execute([(string) $row['subject']]);
+                if ($chkContactSub->fetch()) {
+                    continue;
+                }
+                $insContact->execute([
+                    $row['name'],
+                    $row['email'],
+                    $row['subject'],
+                    $row['body'],
+                    (int) ($row['is_read'] ?? 0),
+                ]);
+                $addedContact++;
+            }
+            if ($addedContact > 0) {
+                seed_log('ok', "Сообщения обратной связи (демо): +{$addedContact}", $isCli);
+            } elseif ($seedContactMessages !== []) {
+                seed_log('skip', 'Демо-сообщения обратной связи уже есть (совпала тема) — пропуск.', $isCli);
+            }
+
+            seed_log('ok', "Готово. Пользователей: +{$addedUsers} обновлено: {$updatedUsers}, рецептов: +{$addedPosts}, лайков: +{$addedLikes}, в избранном: +{$addedFavs}, комментариев: +{$addedComments}, обратная связь (новые демо): +{$addedContact}.", $isCli);
             seed_log('ok', "Пароль для учётных записей сида: «{$seedPassword}»", $isCli);
             $success = true;
         }
@@ -562,7 +626,7 @@ if ($isCli) {
             <a class="btn btn-primary" href="/index.php">На главную</a>
         </div>
     <?php else: ?>
-        <p class="lead">Сначала создаёт таблицы из <code>sql/schema_for_hosting.sql</code> (если их ещё нет), затем добавляет демо-пользователей, рецепты с разными авторами, лайки, избранное и комментарии. Повторный запуск безопасен: пользователи и посты по slug не дублируются; лайки и избранное — через <code>INSERT IGNORE</code>; комментарии — только если такой же текст ещё не был добавлен.</p>
+        <p class="lead">Сначала создаёт таблицы из <code>sql/schema_for_hosting.sql</code> (если их ещё нет), затем добавляет демо-пользователей, рецепты с разными авторами, лайки, избранное, комментарии и сообщения формы «Контакты». Повторный запуск безопасен: пользователи и посты по slug не дублируются; лайки и избранное — через <code>INSERT IGNORE</code>; комментарии — только если такой же текст ещё не был добавлен; демо-письма — если такой <code>subject</code> ещё не сохраняли.</p>
         <div class="card" style="margin-bottom:1.5rem">
             <h2 style="margin-top:0">Что будет создано</h2>
             <p><strong>Пользователи</strong> (если не существуют):</p>
@@ -581,6 +645,7 @@ if ($isCli) {
                 <?php endforeach; ?>
             </ul>
             <p><strong>Активность</strong>: до <?= count($seedLikes) ?> лайков, <?= count($seedFavorites) ?> записей в избранном, <?= count($seedComments) ?> комментариев (для существующих постов с подходящими slug).</p>
+            <p><strong>Обратная связь</strong>: до <?= count($seedContactMessages) ?> демо-сообщений в таблице <code>contact_messages</code> (если тема письма ещё не встречалась — смотрите в <a href="/admin/messages.php">админке</a>).</p>
         </div>
         <form method="post" action="">
             <div class="form-group">
